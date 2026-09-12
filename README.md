@@ -1,11 +1,38 @@
 # Credit - Flask-приложение для заявок на кредит
 
+## Начальные требования
+
+- Установлен Python 3.13 и выше
+- установлен git
+
+## Установка uv для удобной работы с python
+
+Linux / macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+Windows (PowerShell): `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+
+## Клонирование репозитория
+
+```bash
+git clone https://github.com/sashagra/credit.git # скачать проект к себе
+cd credit # войти в папку с проектом
+```
+
+## Установка зависимостей
+
+```bash
+uv sync                       # установка зависимостей
+uv add --dev pytest           # pytest для тестов (опционально)
+uv run flask --app main run   # запуск сервера
+```
+
 ## Команды
 
+```bash
 uv run flask --app main run        # запуск сервера (http://127.0.0.1:5000)
 uv run pytest -v                    # запустить тесты (7 тестов)
 uv run python cli.py list          # список заявок в терминале (если работает сервер, то открыть отдельное окно)
 uv run python cli.py set-status <id> <статус>  # сменить статус заявки
+```
 
 ## Как работает
 
@@ -16,14 +43,3 @@ uv run python cli.py set-status <id> <статус>  # сменить стату
 - "/api/applications" - получение списка, PATCH для смены статуса
 - Когда статус заявки меняется на "одобрено" или "отклонено", показывается alert, cookie удаляется
 - На всех страницах навигационное меню
-
-## Установка uv
-
-Linux / macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-Windows (PowerShell): `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
-
-## Установка зависимостей
-
-uv sync                       # установка зависимостей
-uv add --dev pytest           # pytest для тестов (опционально)
-uv run flask --app main run   # запуск сервера

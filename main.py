@@ -89,9 +89,13 @@ def api_applications():
     return jsonify([dict(r) for r in rows])
 
 
+ALLOWED_STATUSES = {"в ожидании", "одобрено", "отклонено"}
+
 @app.route("/api/applications/<int:app_id>/status", methods=["PATCH"])
 def api_update_status(app_id):
-    new_status = request.get_json()["status"]
+    new_status = request.get_json().get("status")
+    if new_status not in ALLOWED_STATUSES:
+        return jsonify({"error": "Invalid status"}), 400
     db = get_db()
     db.execute(
         "UPDATE applications SET status = ? WHERE id = ?", (new_status, app_id)
