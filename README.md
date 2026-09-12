@@ -7,8 +7,8 @@
 
 ## Установка uv для удобной работы с python
 
-Linux / macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-Windows (PowerShell): `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+- Linux / macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- Windows (PowerShell): `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
 ## Клонирование репозитория
 
