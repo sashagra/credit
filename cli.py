@@ -14,6 +14,8 @@ from argparse import ArgumentParser
 BASE_URL = "http://127.0.0.1:5000"
 
 
+ALLOWED_STATUSES = ("в ожидании", "одобрено", "отклонено")
+
 def api_get(path):
     url = f"{BASE_URL}{path}"
     try:
@@ -49,6 +51,14 @@ def api_patch(path, data):
         sys.exit(1)
 
 
+def _normalize_status(status):
+    # Allow numeric aliases: 1, 2, 3
+    numeric_map = {"1": "в ожидании", "2": "одобрено", "3": "отклонено"}
+    if status in numeric_map:
+        return numeric_map[status]
+    return status
+
+
 def cmd_list(_):
     apps = api_get("/api/applications")
     if not apps:
@@ -65,9 +75,12 @@ def cmd_list(_):
 
 def cmd_set_status(args):
     app_id = args.id
-    status = args.status
-    if status not in ("в ожидании", "одобрено", "отклонено"):
-        print("Status must be one of: 'в ожидании', 'одобрено', 'отклонено'", file=sys.stderr)
+    status = _normalize_status(args.status)
+    if status not in ALLOWED_STATUSES:
+        print(
+            f"Invalid status. Allowed: {', '.join(ALLOWED_STATUSES)} (or 1, 2, 3)",
+            file=sys.stderr,
+        )
         sys.exit(1)
     result = api_patch(f"/api/applications/{app_id}/status", {"status": status})
     print(f"Updated application {app_id}: status = {result['status']}")
@@ -85,7 +98,9 @@ def main():
     )
     set_status_parser.add_argument("id", type=int, help="Application ID")
     set_status_parser.add_argument(
-        "status", help="New status (в ожидании, одобрено, отклонено)"
+        "status",
+        choices=ALLOWED_STATUSES + ("1", "2", "3"),
+        help="New status: в ожидании/1, одобрено/2, отклонено/3",
     )
     set_status_parser.set_defaults(func=cmd_set_status)
 
