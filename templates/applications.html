@@ -5,6 +5,11 @@
   <title>Статус заявок</title>
 </head>
 <body>
+  <nav>
+    <a href="/">Главная</a> |
+    <a href="/apply">Подать заявку</a> |
+    <a href="/applications">Статус заявок</a>
+  </nav>
   <h1>Заявки на кредит</h1>
   <table id="apps-table" border="1" cellpadding="5">
     <thead>
@@ -23,6 +28,13 @@
   <button onclick="loadApplications()">Обновить</button>
 
   <script>
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^|;)\\s*' + name + '\\s*=\s*([^;]+)'));
+      return match ? match.pop() : null;
+    }
+
+    let currentAppId = getCookie('current_app_id');
+
     async function loadApplications() {
       const res = await fetch('/api/applications');
       const apps = await res.json();
@@ -33,35 +45,21 @@
         '<td>' + a.name + '</td>' +
         '<td>' + a.amount + '</td>' +
         '<td>' + a.term + '</td>' +
-        '<td>' +
-        '<select onchange="updateStatus(' + a.id + ', this.value)">' +
-          '<option value="в ожидании">в ожидании</option>' +
-          '<option value="одобрено">одобрено</option>' +
-          '<option value="отклонено">отклонено</option>' +
-        '</select>' +
-        '</td>' +
+        '<td>' + a.status + '</td>' +
         '<td>' + a.created_at + '</td>' +
         '</tr>'
       ).join('');
-      // set selects to current values
-      apps.forEach(a => {
-        const sel = document.querySelector('#row-' + a.id + ' select');
-        if (sel) sel.value = a.status;
-      });
-    }
-
-    async function updateStatus(id, status) {
-      const res = await fetch('/api/applications/' + id + '/status', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      const app = await res.json();
-      // re-render just this row to reflect server state
-      const row = document.getElementById('row-' + id);
-      if (row) {
-        const sel = row.querySelector('select');
-        if (sel) sel.value = app.status;
+      // Check for cookie alert after loading
+      if (currentAppId && currentAppId !== '') {
+        const row = document.getElementById('row-' + currentAppId);
+        if (row) {
+          const statusCell = row.querySelector('td:nth-child(5)');
+          if (statusCell && (statusCell.textContent === 'одобрено' || statusCell.textContent === 'отклонено')) {
+            alert('Статус заявки #' + currentAppId + ' изменился на ' + statusCell.textContent + '.');
+            document.cookie = 'current_app_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            currentAppId = null;
+          }
+        }
       }
     }
 

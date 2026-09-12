@@ -8,3 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Database
+credit.db
+
+# Test artifacts
+.pytest_cache/
+.coverage

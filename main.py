@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, g, render_template, request, jsonify
+from flask import Flask, g, render_template, request, jsonify, make_response
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("DATABASE", "credit.db")
@@ -42,6 +42,15 @@ def _ensure_db():
     init_db()
 
 
+def _set_cookie(response, app_id):
+    response.set_cookie("current_app_id", str(app_id))
+    return response
+
+
+def _get_cookie_app_id():
+    return None
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -60,7 +69,9 @@ def apply():
         row = db.execute(
             "SELECT * FROM applications WHERE id = ?", (cur.lastrowid,)
         ).fetchone()
-        return jsonify(dict(row)), 201
+        response = make_response(jsonify(dict(row)), 201)
+        response.set_cookie("current_app_id", str(cur.lastrowid))
+        return response
     return render_template("apply.html")
 
 
@@ -89,7 +100,10 @@ def api_update_status(app_id):
     row = db.execute(
         "SELECT * FROM applications WHERE id = ?", (app_id,)
     ).fetchone()
-    return jsonify(dict(row))
+    resp = make_response(jsonify(dict(row)))
+    if new_status in ("одобрено", "отклонено"):
+        resp.set_cookie("current_app_id", "", expires=0)
+    return resp
 
 
 if __name__ == "__main__":

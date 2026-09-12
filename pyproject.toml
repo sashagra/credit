@@ -1,7 +1,7 @@
 [project]
 name = "credit"
 version = "0.1.0"
-description = "Add your description here"
+description = "Flask application for credit applications with SQLite storage and AJAX status updates"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
